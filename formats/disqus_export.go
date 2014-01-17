@@ -1,11 +1,10 @@
-package main
+
+package formats
 
 import (
     "encoding/xml"
     "fmt"
     "strings"
-    "io/ioutil"
-    "os"
 )
 
 type Disqus struct {
@@ -19,8 +18,8 @@ type Disqus struct {
 
 type Category struct {
     Id int `xml:"http://disqus.com/disqus-internals id,attr"`
-    Title string `xml:"title"`
     Forum string `xml:"forum"`
+    Title string `xml:"title"`
     Default bool `xml:"isDefault"`
 }
 type Author struct {
@@ -35,6 +34,7 @@ type Thread struct {
     Category DsqIDNode `xml:"category"`
     Link string `xml:"link"`
     Title string `xml:"title"`
+    Message string `xml:"message"`
     CreatedAt string `xml:"createdAt"`
     Author Author `xml:"author"`
     IPAddress string `xml:"ipAddress"`
@@ -50,7 +50,9 @@ type Post struct {
     Author Author `xml:"author"`
     IPAddress string `xml:"ipAddress"`
     Thread DsqIDNode `xml:"thread"`
+    Parent DsqIDNode `xml:"parent"`
 }
+
 type DsqIDNode struct {
     XMLName xml.Name
     Id int `xml:"http://disqus.com/disqus-internals id,attr"`
@@ -69,62 +71,4 @@ func (t Thread) String() string {
 func (p Post) String() string {
     return fmt.Sprintf("[%d] threadID: %d by %s\n%s",
         p.Id, p.Thread.Id, p.Author, strings.Trim(p.Message, " \n\t"))
-}
-
-func main() {
-    xmlFile, err := os.Open("nextjump-disqus-comments.xml")
-    if err != nil {
-        fmt.Println("Error opening file:", err)
-        return
-    }
-    defer xmlFile.Close()
-
-    b, _ := ioutil.ReadAll(xmlFile)
-
-    var q Disqus
-    xml.Unmarshal(b, &q)
-
-    newXML, _ := xml.MarshalIndent(&q, "", "  ")
-    fmt.Printf("%s", newXML)
-
-    /*
-    type Person struct {
-        Name  string
-        Likes []string
-    }
-    var people []*Person
-
-    likes := make(map[string][]*Person)
-    for _, p := range people {
-        for _, l := range p.Likes {
-            likes[l] = append(likes[l], p)
-        }
-    }
-    */
-
-    // var threadMap = make(map[Thread][]Post)
-    // for _, post := range q.PostList {
-        // id := post.Thread.Id
-        // threadMap[id] = nil //post.
-
-        // add to mapping of thread => posts
-
-        // fmt.Printf("%s\n", post)
-    // }
-    // iterate through threads
-    //     only keep those with entries
-/*
-    fmt.Println("Categories")
-    for _, category := range q.CategoryList {
-        fmt.Printf("%s\n", category)
-    }
-    fmt.Println("Threads")
-    for _, thread := range q.ThreadList {
-        fmt.Printf("%s\n", thread)
-    }
-    fmt.Println("Posts")
-    for _, post := range q.PostList {
-        fmt.Printf("%s\n", post)
-    }
-*/
 }
