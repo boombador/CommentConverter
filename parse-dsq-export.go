@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-    xmlFile, err := os.Open("nextjump-disqus-comments.xml")
+    xmlFile, err := os.Open("xml/nextjump-disqus-comments.xml")
     if err != nil {
         fmt.Println("Error opening file:", err)
         return
